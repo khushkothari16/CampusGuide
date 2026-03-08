@@ -3,6 +3,10 @@ import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
 import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import { GoogleGenAI } from "@google/genai";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,23 +77,23 @@ if (facilitiesCount.count === 0) {
   insertRule.run("Library", "Silence must be maintained in the library. Fines apply for late book returns.");
 
   const insertAdm = db.prepare("INSERT INTO admission_info (category, title, content) VALUES (?, ?, ?)");
-  
+
   // Contacts
   insertAdm.run("Contact", "Admission Office", "Mr. Rajkumar Soni: 8696932729; Dr. Rekha Lahoti: 8696932786; Mr. Abhishek Sharma: 8696932730; Account Department: 8696932738");
-  
+
   // Documents
   insertAdm.run("Documents", "Required Documents for Admission", "1. 10th Mark sheet (Original + 2 photocopies); 2. 11th Mark sheet (Original + 2 photocopies); 3. 12th Mark sheet (Original + 2 photocopies); 4. Migration certificate (Original + 2 photocopies); 5. Transfer certificate (Original + 2 photocopies); 6. Medical fitness certificate RTU-2019 Format (Original + 2 photocopies); 7. Aadhar card (2 photocopies); 8. Domicile certificate (2 photocopies); 9. Caste certificate (Original + 2 photocopies) (For Reserved Category only); 10. Four latest passport size-coloured photographs; 11. JEE Main / Any entrance exam mark sheet (2 photocopies); 12. Gap certificate in case of year gap (Original + 2 photocopies); 13. Income certificate for TFWS candidates only (RTU Format original)");
-  
+
   // Bank Details
   insertAdm.run("Bank", "Institution Bank Account Details", "Name of Account: Techno India NJR Institute of Technology; Bank Name: HDFC Bank Ltd, Awalo ki Bari, Jamar Kotda Main Road, Eklingpura, Udaipur-313003; Bank Account Number: 12731450000045; IFSC Code: HDFC0003426");
-  
+
   // Fee Structure
   insertAdm.run("Fees", "Fee Structure (2025-26) - CSE & AI/DS", "One Time Admission Fee: 14,500 (Includes Registration: 1000, Caution Money: 7500, Development Fee: 2500, Enrolment: 500, Uniform: 3000). Semester Fee (Sem I & II): 38,200 per semester (Tuition: 35,000, Exam: 2200, Book Bank: 1000). Total I-Year: 90,900. II-Year: 76,900. III-Year: 76,900. IV-Year: 77,400. Bus Fee: 10,000 per semester. Hostel Fee: 40,000 (I Sem), 30,000 (II Sem).");
 }
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = 5000;
 
   app.use(express.json());
 
@@ -106,15 +110,71 @@ async function startServer() {
       });
     }
 
-    // Simple keyword search
+    // Improved search logic: search for the whole query AND individual keywords
+    const searchTerms = query.split(/\s+/).filter(term => term.length > 3);
     const searchPattern = `%${query}%`;
-    const facilities = db.prepare("SELECT * FROM facilities WHERE name LIKE ? OR description LIKE ?").all(searchPattern, searchPattern);
-    const events = db.prepare("SELECT * FROM events WHERE name LIKE ? OR description LIKE ?").all(searchPattern, searchPattern);
-    const clubs = db.prepare("SELECT * FROM clubs WHERE name LIKE ? OR description LIKE ?").all(searchPattern, searchPattern);
-    const rules = db.prepare("SELECT * FROM rules WHERE category LIKE ? OR rule_text LIKE ?").all(searchPattern, searchPattern);
-    const admission = db.prepare("SELECT * FROM admission_info WHERE category LIKE ? OR title LIKE ? OR content LIKE ?").all(searchPattern, searchPattern, searchPattern);
+
+    let facilities = db.prepare("SELECT * FROM facilities WHERE name LIKE ? OR description LIKE ?").all(searchPattern, searchPattern);
+    let events = db.prepare("SELECT * FROM events WHERE name LIKE ? OR description LIKE ?").all(searchPattern, searchPattern);
+    let clubs = db.prepare("SELECT * FROM clubs WHERE name LIKE ? OR description LIKE ?").all(searchPattern, searchPattern);
+    let rules = db.prepare("SELECT * FROM rules WHERE category LIKE ? OR rule_text LIKE ?").all(searchPattern, searchPattern);
+    let admission = db.prepare("SELECT * FROM admission_info WHERE category LIKE ? OR title LIKE ? OR content LIKE ?").all(searchPattern, searchPattern, searchPattern);
+
+    // Keyword fallback
+    if (facilities.length === 0 && admission.length === 0 && searchTerms.length > 0) {
+      for (const term of searchTerms) {
+        const termPattern = `%${term}%`;
+        const f = db.prepare("SELECT * FROM facilities WHERE name LIKE ? OR description LIKE ?").all(termPattern, termPattern);
+        const a = db.prepare("SELECT * FROM admission_info WHERE category LIKE ? OR title LIKE ? OR content LIKE ?").all(termPattern, termPattern, termPattern);
+        facilities = [...new Set([...facilities, ...f])];
+        admission = [...new Set([...admission, ...a])];
+        if (facilities.length > 5 || admission.length > 5) break;
+      }
+    }
 
     res.json({ facilities, events, clubs, rules, admission });
+  });
+
+  // New endpoint for Chatbot logic (Backend Proxy to Gemini)
+  // Force v1 to avoid regional v1beta issues
+  const genAI = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || "",
+    apiVersion: "v1"
+  });
+
+  app.post('/api/chat', async (req, res) => {
+    try {
+      const { message, history, systemPreamble } = req.body;
+
+      const contents = [
+        { role: "user", parts: [{ text: systemPreamble }] },
+        { role: "model", parts: [{ text: "Understood. I am CampusGuide AI for Techno India NJR. How can I assist you today?" }] },
+        ...history.map((h: any) => ({
+          role: h.role,
+          parts: [{ text: h.text }]
+        })),
+        { role: "user", parts: [{ text: message }] }
+      ];
+
+      const response = await genAI.models.generateContent({
+        model: "gemini-2.5-flash-lite",
+        contents
+      });
+
+      res.json({ text: response.text });
+    } catch (error: any) {
+      console.error("Backend Gemini Error:", error);
+      res.status(500).json({ error: error.message || "Failed to generate response" });
+    }
+  });
+
+  // Global error handling for the process
+  process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  });
+
+  process.on("uncaughtException", (error) => {
+    console.error("Uncaught Exception:", error);
   });
 
   // Vite middleware for development
@@ -132,7 +192,9 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log("\n  🚀 CampusGuide AI is ready!");
+    console.log(`  ➜  Local:   \x1b[36mhttp://localhost:${PORT}/\x1b[0m`);
+    console.log(`  ➜  Network: \x1b[36mhttp://127.0.0.1:${PORT}/\x1b[0m\n`);
   });
 }
 

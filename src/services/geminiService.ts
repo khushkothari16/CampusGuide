@@ -1,7 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
-
+// Still keep the interface for type compatibility
 export interface ChatMessage {
   role: "user" | "model";
   text: string;
@@ -25,55 +24,50 @@ export async function generateCampusResponse(
 ) {
   // 1. Fetch relevant knowledge
   const knowledge = await getCampusInfo(message);
-  
+
   // 2. Format knowledge for the prompt
-  let knowledgeContext = "No specific information found in the database for this query.";
+  let knowledgeContext = "No specific information found in the database. General campus info mode.";
   if (knowledge) {
-    const parts = [];
-    if (knowledge.facilities.length > 0) {
-      parts.push("Facilities: " + knowledge.facilities.map((f: any) => `${f.name} at ${f.location} (${f.hours}). ${f.description}`).join("; "));
+    const sections = [];
+    if (knowledge.facilities?.length > 0) {
+      sections.push("### Facilities\n" + knowledge.facilities.map((f: any) => `- **${f.name}**: ${f.description}`).join("\n"));
     }
-    if (knowledge.events.length > 0) {
-      parts.push("Events: " + knowledge.events.map((e: any) => `${e.name} on ${e.date} at ${e.location}. ${e.description}`).join("; "));
+    if (knowledge.rules?.length > 0) {
+      sections.push("### Rules\n" + knowledge.rules.map((r: any) => `- ${r.rule_text}`).join("\n"));
     }
-    if (knowledge.clubs.length > 0) {
-      parts.push("Clubs: " + knowledge.clubs.map((c: any) => `${c.name}: ${c.description}. Procedure: ${c.procedure}`).join("; "));
-    }
-    if (knowledge.rules.length > 0) {
-      parts.push("Rules: " + knowledge.rules.map((r: any) => `[${r.category}] ${r.rule_text}`).join("; "));
-    }
-    if (knowledge.admission && knowledge.admission.length > 0) {
-      parts.push("Admission & Fees: " + knowledge.admission.map((a: any) => `${a.title} (${a.category}): ${a.content}`).join("; "));
-    }
-    if (parts.length > 0) {
-      knowledgeContext = parts.join("\n");
-    }
+    if (sections.length > 0) knowledgeContext = sections.join("\n\n");
   }
 
-  const systemInstruction = `You are CampusGuide AI, a helpful and friendly assistant for Techno NJR (Techno India NJR Institute of Technology).
-Your goal is to assist ${userContext}s with accurate information about the campus, admissions, and facilities.
-Use the following knowledge base information AND the provided college website (https://www.technonjr.org/admission/) to answer the user's query. 
-If the information is not in the knowledge base or on the website, politely inform the user and suggest they contact the admission cell.
-Be concise, informative, and maintain a professional yet approachable tone.
+  const systemPreamble = `You are CampusGuide AI for Techno India NJR (Techno NJR), Udaipur. Helpful, concise, student-focused.
 
-KNOWLEDGE BASE:
+BASE KNOWLEDGE:
 ${knowledgeContext}
 
-USER CONTEXT: The user is a ${userContext}.`;
+USER TYPE: ${userContext}`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: history.map(h => ({ role: h.role, parts: [{ text: h.text }] })).concat([{ role: "user", parts: [{ text: message }] }]),
-      config: {
-        systemInstruction,
-        tools: [{ urlContext: {} }]
+    // Calling our OWN backend proxy
+    const response = await fetch('/api/chat', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        message,
+        history,
+        systemPreamble
+      })
     });
 
-    return response.text || "I'm sorry, I couldn't process that request.";
-  } catch (error) {
-    console.error("Gemini API Error:", error);
+    if (!response.ok) {
+      const errData = await response.json();
+      throw new Error(errData.error || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.text || "I'm sorry, I couldn't generate a response.";
+  } catch (error: any) {
+    console.error("Chatbot Proxy Error:", error);
     return "I'm having trouble connecting to my brain right now. Please try again later.";
   }
 }
