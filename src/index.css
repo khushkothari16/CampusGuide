@@ -1,7 +1,36 @@
 @import "tailwindcss";
 
 @theme {
+  --color-brand-blue: #0A2540;
+  --color-brand-mint: #E8F5E9;
+  --color-brand-teal: #00B4D8;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer utilities {
+  .bg-mesh {
+    background-color: #f0fdf4;
+    background-image: 
+      radial-gradient(at 40% 20%, hsla(210,100%,92%,1) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsla(189,100%,86%,1) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsla(152,80%,90%,1) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, hsla(160,100%,94%,1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(212,100%,91%,1) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsla(190,100%,95%,1) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, hsla(164,100%,92%,1) 0px, transparent 50%);
+  }
+
+  .dark .bg-mesh {
+    background-color: #0b1120;
+    background-image: 
+      radial-gradient(at 40% 20%, hsla(210,100%,12%,1) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsla(189,100%,15%,1) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsla(152,80%,10%,1) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, hsla(160,100%,14%,1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(212,100%,11%,1) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsla(190,100%,15%,1) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, hsla(164,100%,12%,1) 0px, transparent 50%);
+  }
 }
 
 @layer base {
@@ -24,7 +53,7 @@
     @apply mb-1;
   }
   .markdown-body strong {
-    @apply font-semibold text-black;
+    @apply font-semibold text-black dark:text-white;
   }
   .markdown-body h1, .markdown-body h2, .markdown-body h3 {
     @apply font-bold mt-4 mb-2;

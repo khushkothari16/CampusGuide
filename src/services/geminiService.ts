@@ -20,7 +20,8 @@ export async function getCampusInfo(query: string) {
 export async function generateCampusResponse(
   message: string,
   history: ChatMessage[],
-  userContext: "fresher" | "student" | "visitor" = "student"
+  userContext: "fresher" | "student" | "visitor" = "student",
+  imageBase64?: string
 ) {
   // 1. Fetch relevant knowledge
   const knowledge = await getCampusInfo(message);
@@ -34,6 +35,9 @@ export async function generateCampusResponse(
     }
     if (knowledge.rules?.length > 0) {
       sections.push("### Rules\n" + knowledge.rules.map((r: any) => `- ${r.rule_text}`).join("\n"));
+    }
+    if (knowledge.scrapedData?.length > 0) {
+      sections.push("### General Info from Website\n" + knowledge.scrapedData.map((d: any) => `- ${d.content}`).join("\n"));
     }
     if (sections.length > 0) knowledgeContext = sections.join("\n\n");
   }
@@ -55,7 +59,8 @@ USER TYPE: ${userContext}`;
       body: JSON.stringify({
         message,
         history,
-        systemPreamble
+        systemPreamble,
+        image: imageBase64
       })
     });
 

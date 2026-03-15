@@ -4,7 +4,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 
 dotenv.config();
 
@@ -119,51 +119,78 @@ async function startServer() {
     let clubs = db.prepare("SELECT * FROM clubs WHERE name LIKE ? OR description LIKE ?").all(searchPattern, searchPattern);
     let rules = db.prepare("SELECT * FROM rules WHERE category LIKE ? OR rule_text LIKE ?").all(searchPattern, searchPattern);
     let admission = db.prepare("SELECT * FROM admission_info WHERE category LIKE ? OR title LIKE ? OR content LIKE ?").all(searchPattern, searchPattern, searchPattern);
+    
+    // Add scraped data
+    let scrapedData: any[] = [];
+    try {
+      scrapedData = db.prepare("SELECT * FROM scraped_knowledge WHERE content LIKE ?").all(searchPattern);
+    } catch (e) {
+      // Ignore if table doesn't exist yet
+    }
 
     // Keyword fallback
-    if (facilities.length === 0 && admission.length === 0 && searchTerms.length > 0) {
+    if (facilities.length === 0 && admission.length === 0 && scrapedData.length === 0 && searchTerms.length > 0) {
       for (const term of searchTerms) {
         const termPattern = `%${term}%`;
         const f = db.prepare("SELECT * FROM facilities WHERE name LIKE ? OR description LIKE ?").all(termPattern, termPattern);
         const a = db.prepare("SELECT * FROM admission_info WHERE category LIKE ? OR title LIKE ? OR content LIKE ?").all(termPattern, termPattern, termPattern);
+        
+        let s: any[] = [];
+        try {
+           s = db.prepare("SELECT * FROM scraped_knowledge WHERE content LIKE ?").all(termPattern);
+        } catch (e) {}
+
         facilities = [...new Set([...facilities, ...f])];
         admission = [...new Set([...admission, ...a])];
-        if (facilities.length > 5 || admission.length > 5) break;
+        scrapedData = [...new Set([...scrapedData, ...s])];
+        if (facilities.length > 5 || admission.length > 5 || scrapedData.length > 10) break;
       }
     }
 
-    res.json({ facilities, events, clubs, rules, admission });
+    res.json({ facilities, events, clubs, rules, admission, scrapedData });
   });
 
-  // New endpoint for Chatbot logic (Backend Proxy to Gemini)
-  // Force v1 to avoid regional v1beta issues
-  const genAI = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || "",
-    apiVersion: "v1"
+  const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY || "",
   });
 
   app.post('/api/chat', async (req, res) => {
     try {
-      const { message, history, systemPreamble } = req.body;
+      const { message, history, systemPreamble, image } = req.body;
 
-      const contents = [
-        { role: "user", parts: [{ text: systemPreamble }] },
-        { role: "model", parts: [{ text: "Understood. I am CampusGuide AI for Techno India NJR. How can I assist you today?" }] },
+      // Format messages for Groq API
+      const messages: any[] = [
+        { role: "system", content: systemPreamble },
         ...history.map((h: any) => ({
-          role: h.role,
-          parts: [{ text: h.text }]
-        })),
-        { role: "user", parts: [{ text: message }] }
+          role: h.role === "model" ? "assistant" : h.role,
+          content: h.text
+        }))
       ];
 
-      const response = await genAI.models.generateContent({
-        model: "gemini-2.5-flash-lite",
-        contents
+      // Handle the current user message, potentially with an image
+      if (image) {
+        messages.push({
+          role: "user",
+          content: [
+            { type: "text", text: message },
+            { type: "image_url", image_url: { url: image } }
+          ]
+        });
+      } else {
+        messages.push({ role: "user", content: message });
+      }
+
+      // Select model based on whether an image is provided
+      const model = image ? "llama-3.2-90b-vision-preview" : "llama-3.3-70b-versatile";
+
+      const chatCompletion = await groq.chat.completions.create({
+        messages: messages,
+        model: model,
       });
 
-      res.json({ text: response.text });
+      res.json({ text: chatCompletion.choices[0]?.message?.content || "" });
     } catch (error: any) {
-      console.error("Backend Gemini Error:", error);
+      console.error("Backend Groq Error:", error);
       res.status(500).json({ error: error.message || "Failed to generate response" });
     }
   });

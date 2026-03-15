@@ -12,7 +12,11 @@ import {
   GraduationCap,
   School,
   Eye,
-  MessageSquare
+  MessageSquare,
+  Paperclip,
+  X,
+  Moon,
+  Sun
 } from "lucide-react";
 import { generateCampusResponse, ChatMessage } from "./services/geminiService";
 import ReactMarkdown from "react-markdown";
@@ -32,7 +36,19 @@ export default function App() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState<UserType>("student");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Apply dark mode to document element
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,15 +58,38 @@ export default function App() {
     scrollToBottom();
   }, [messages]);
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image must be less than 5MB");
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    if ((!input.trim() && !selectedImage) || isLoading) return;
 
     const userMessage = input.trim();
+    const imageToSend = selectedImage;
+    
     setInput("");
-    setMessages(prev => [...prev, { role: "user", text: userMessage }]);
+    setSelectedImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    
+    // Optimistic UI update
+    const displayMessage = userMessage || "Sent an image";
+    setMessages(prev => [...prev, { role: "user", text: displayMessage }]);
     setIsLoading(true);
 
-    const response = await generateCampusResponse(userMessage, messages, userType);
+    const response = await generateCampusResponse(userMessage, messages, userType, imageToSend || undefined);
     
     setMessages(prev => [...prev, { role: "model", text: response }]);
     setIsLoading(false);
@@ -64,32 +103,32 @@ export default function App() {
   ];
 
   return (
-    <div className="flex h-screen bg-[#F5F5F5] text-[#1A1A1A] font-sans">
+    <div className="flex h-screen bg-mesh text-[#1A1A1A] dark:text-gray-100 font-sans selection:bg-brand-teal/20 selection:text-brand-blue dark:selection:text-white transition-colors duration-300">
       {/* Sidebar */}
-      <aside className="w-72 bg-white border-r border-black/5 flex flex-col hidden md:flex">
-        <div className="p-6 border-bottom border-black/5">
+      <aside className="w-64 bg-white/40 dark:bg-[#0b1120]/60 backdrop-blur-xl border-r border-white/40 dark:border-white/10 flex flex-col hidden md:flex shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 transition-colors duration-300">
+        <div className="p-6 border-b border-white/30 dark:border-white/10">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
+            <div className="w-8 h-8 bg-gradient-to-br from-brand-teal to-blue-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-brand-teal/20">
               <School size={20} />
             </div>
             <h1 className="font-semibold text-lg tracking-tight">CampusGuide AI</h1>
           </div>
-          <p className="text-xs text-black/40 font-medium uppercase tracking-wider">Techno NJR Assistant</p>
+          <p className="text-xs text-black/40 dark:text-white/40 font-medium uppercase tracking-wider">Techno NJR Assistant</p>
         </div>
 
         <nav className="flex-1 p-4 space-y-6">
           <div>
-            <label className="text-[10px] font-bold text-black/30 uppercase tracking-widest mb-3 block px-2">I am a...</label>
+            <label className="text-[10px] font-bold text-black/30 dark:text-white/30 uppercase tracking-widest mb-3 block px-2">I am a...</label>
             <div className="space-y-1">
               {(["fresher", "student", "visitor"] as UserType[]).map((type) => (
                 <button
                   key={type}
                   onClick={() => setUserType(type)}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium",
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 text-sm font-medium",
                     userType === type 
-                      ? "bg-emerald-50 text-emerald-700 shadow-sm ring-1 ring-emerald-200" 
-                      : "text-black/60 hover:bg-black/5"
+                      ? "bg-gradient-to-r from-blue-500/10 to-teal-400/10 text-brand-teal dark:text-teal-400 shadow-sm ring-1 ring-brand-teal/20 dark:ring-brand-teal/40" 
+                      : "text-black/60 dark:text-white/60 hover:bg-white/50 dark:hover:bg-white/10"
                   )}
                 >
                   {type === "fresher" && <GraduationCap size={18} />}
@@ -102,13 +141,13 @@ export default function App() {
           </div>
 
           <div>
-            <label className="text-[10px] font-bold text-black/30 uppercase tracking-widest mb-3 block px-2">Quick Access</label>
+            <label className="text-[10px] font-bold text-black/30 dark:text-white/30 uppercase tracking-widest mb-3 block px-2">Quick Access</label>
             <div className="space-y-1">
               {suggestions.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => setInput(s.text)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs text-black/50 hover:bg-black/5 hover:text-black transition-colors group"
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs text-black/50 dark:text-white/50 hover:bg-white/60 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-colors group"
                 >
                   <div className="flex items-center gap-2">
                     {s.icon}
@@ -121,42 +160,78 @@ export default function App() {
           </div>
         </nav>
 
-        <div className="p-4 mt-auto border-t border-black/5">
-          <div className="bg-black/5 rounded-xl p-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-black/40">
+        <div className="p-4 mt-auto border-t border-white/30 dark:border-white/10 space-y-3">
+          <button 
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/50 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20 transition-colors text-sm font-medium text-black/60 dark:text-white/80 backdrop-blur-sm border border-white/40 dark:border-white/10 shadow-sm"
+          >
+            <div className="flex items-center gap-3">
+              {isDarkMode ? <Moon size={16} /> : <Sun size={16} />}
+              <span>{isDarkMode ? "Dark Mode" : "Light Mode"}</span>
+            </div>
+            <div className={cn(
+              "w-8 h-4 rounded-full relative transition-colors",
+              isDarkMode ? "bg-brand-teal/50" : "bg-black/10"
+            )}>
+              <div className={cn(
+                "absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all shadow-sm",
+                isDarkMode ? "left-4.5" : "left-0.5"
+              )} />
+            </div>
+          </button>
+          <div className="bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-white/40 dark:border-white/10 rounded-xl p-3 flex items-center gap-3 shadow-sm">
+            <div className="w-8 h-8 rounded-full bg-white dark:bg-white/20 flex items-center justify-center text-black/40 dark:text-white/80">
               <User size={16} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold truncate">Guest User</p>
-              <p className="text-[10px] text-black/40 truncate capitalize">{userType} Mode</p>
+              <p className="text-[10px] text-black/40 dark:text-white/40 truncate capitalize">{userType} Mode</p>
             </div>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative bg-white md:bg-transparent">
+      <main className="flex-1 flex flex-col relative bg-transparent">
         {/* Header (Mobile) */}
-        <header className="md:hidden p-4 bg-white border-b border-black/5 flex items-center justify-between">
+        <header className="md:hidden p-4 bg-white/60 dark:bg-[#0b1120]/60 backdrop-blur-xl border-b border-white/30 dark:border-white/10 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
+            <div className="w-8 h-8 bg-gradient-to-br from-brand-teal to-blue-500 rounded-lg flex items-center justify-center text-white shadow-md">
               <School size={18} />
             </div>
             <span className="font-semibold">CampusGuide</span>
           </div>
-          <select 
-            value={userType} 
-            onChange={(e) => setUserType(e.target.value as UserType)}
-            className="text-xs bg-black/5 border-none rounded-lg px-2 py-1 outline-none"
-          >
-            <option value="fresher">Fresher</option>
-            <option value="student">Student</option>
-            <option value="visitor">Visitor</option>
-          </select>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="text-black/60 dark:text-white/80 hover:text-brand-teal"
+            >
+              {isDarkMode ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+            <select 
+              value={userType} 
+              onChange={(e) => setUserType(e.target.value as UserType)}
+              className="text-xs bg-black/5 dark:bg-white/10 border-none rounded-lg px-2 py-1 outline-none dark:text-white/90"
+            >
+              <option value="fresher">Fresher</option>
+              <option value="student">Student</option>
+              <option value="visitor">Visitor</option>
+            </select>
+          </div>
         </header>
 
+        {/* Floating Bubble Header (Desktop) */}
+        <div className="hidden md:flex justify-center pt-6 absolute top-0 w-full z-10 pointer-events-none">
+          <div className="bg-white/60 dark:bg-black/50 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.04)] rounded-full px-6 py-2 pointer-events-auto">
+             <p className="text-xs font-medium text-black/60 dark:text-white/80 flex items-center gap-2">
+               <Bot size={14} className="text-brand-teal dark:text-brand-mint" />
+               Connected to <span className="font-bold text-brand-blue dark:text-white">Campus Brain</span>
+             </p>
+          </div>
+        </div>
+
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 md:pt-24 scroll-smooth">
           <div className="max-w-3xl mx-auto space-y-6">
             <AnimatePresence initial={false}>
               {messages.map((msg, i) => (
@@ -170,18 +245,18 @@ export default function App() {
                   )}
                 >
                   <div className={cn(
-                    "w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center",
-                    msg.role === "user" ? "bg-black text-white" : "bg-emerald-600 text-white"
+                    "w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center shadow-sm",
+                    msg.role === "user" ? "bg-gradient-to-br from-brand-blue to-blue-900 text-white" : "bg-gradient-to-br from-brand-mint to-white dark:from-teal-900 dark:to-brand-blue text-brand-teal dark:text-white border border-white/50 dark:border-white/10"
                   )}>
                     {msg.role === "user" ? <User size={16} /> : <Bot size={16} />}
                   </div>
                   <div className={cn(
                     "max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed",
                     msg.role === "user" 
-                      ? "bg-black text-white rounded-tr-none" 
-                      : "bg-white border border-black/5 shadow-sm rounded-tl-none"
+                      ? "bg-gradient-to-br from-brand-blue to-blue-900 text-white rounded-tr-none shadow-md shadow-brand-blue/20" 
+                      : "bg-white/70 dark:bg-black/40 backdrop-blur-md border border-white/50 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-tl-none text-black dark:text-white"
                   )}>
-                    <div className="markdown-body prose prose-sm max-w-none">
+                    <div className="markdown-body prose prose-sm dark:prose-invert max-w-none">
                       <ReactMarkdown>{msg.text}</ReactMarkdown>
                     </div>
                   </div>
@@ -194,13 +269,13 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 className="flex gap-4"
               >
-                <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-mint to-white dark:from-teal-900 dark:to-brand-blue border border-white/50 dark:border-white/10 text-brand-teal dark:text-white flex items-center justify-center shadow-sm">
                   <Bot size={16} />
                 </div>
-                <div className="bg-white border border-black/5 shadow-sm rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-1">
-                  <div className="w-1 h-1 bg-black/20 rounded-full animate-bounce" />
-                  <div className="w-1 h-1 bg-black/20 rounded-full animate-bounce [animation-delay:0.2s]" />
-                  <div className="w-1 h-1 bg-black/20 rounded-full animate-bounce [animation-delay:0.4s]" />
+                <div className="bg-white/70 dark:bg-black/40 backdrop-blur-md border border-white/50 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-1">
+                  <div className="w-1 h-1 bg-black/20 dark:bg-white/50 rounded-full animate-bounce" />
+                  <div className="w-1 h-1 bg-black/20 dark:bg-white/50 rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-1 h-1 bg-black/20 dark:bg-white/50 rounded-full animate-bounce [animation-delay:0.4s]" />
                 </div>
               </motion.div>
             )}
@@ -212,20 +287,47 @@ export default function App() {
         <div className="p-4 md:p-8 pt-0">
           <div className="max-w-3xl mx-auto">
             <div className="relative group">
-              <div className="absolute inset-0 bg-emerald-600/5 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
-              <div className="relative flex items-center gap-2 bg-white border border-black/10 rounded-2xl p-2 shadow-lg focus-within:border-emerald-500/50 transition-all">
+              {selectedImage && (
+                <div className="mb-2 relative inline-block">
+                  <img src={selectedImage} alt="Preview" className="h-16 w-16 object-cover rounded-lg border border-black/10 shadow-sm" />
+                  <button 
+                    onClick={() => {
+                      setSelectedImage(null);
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                    }}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+              <div className="absolute inset-0 bg-brand-teal/5 blur-2xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative flex items-center gap-2 bg-white/60 dark:bg-[#0b1120]/60 backdrop-blur-xl border border-white/60 dark:border-white/10 rounded-2xl p-2 shadow-[0_8px_32px_rgba(0,0,0,0.04)] focus-within:ring-2 focus-within:ring-brand-teal/20 focus-within:border-brand-teal/30 transition-all">
+                <input
+                  type="file"
+                  accept="image/png, image/jpeg, image/webp"
+                  className="hidden"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-10 h-10 text-black/40 dark:text-white/40 hover:bg-white/50 dark:hover:bg-white/10 hover:text-brand-teal dark:hover:text-brand-teal rounded-xl flex items-center justify-center transition-all"
+                >
+                  <Paperclip size={18} />
+                </button>
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder={`Ask anything about Techno NJR as a ${userType}...`}
-                  className="flex-1 bg-transparent border-none outline-none px-4 py-2 text-sm placeholder:text-black/30"
+                  className="flex-1 bg-transparent border-none outline-none px-2 py-2 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 text-black dark:text-white w-full"
                 />
                 <button
                   onClick={handleSend}
-                  disabled={!input.trim() || isLoading}
-                  className="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center hover:bg-emerald-700 disabled:opacity-50 disabled:hover:bg-emerald-600 transition-colors shadow-md shadow-emerald-600/20"
+                  disabled={(!input.trim() && !selectedImage) || isLoading}
+                  className="w-10 h-10 bg-gradient-to-br from-brand-teal to-blue-500 text-white rounded-xl flex items-center justify-center hover:shadow-lg hover:shadow-brand-teal/40 disabled:opacity-50 transition-all shadow-md shadow-brand-teal/20 shrink-0"
                 >
                   <Send size={18} />
                 </button>
