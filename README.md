@@ -1,7 +1,5 @@
 <div align="center">
-  <img src="docs/assets/hero_banner.png" alt="CampusGuide Hero" width="100%" />
-
-  <h1>🚀 CampusGuide AI</h1>
+<h1>🚀 CampusGuide AI</h1>
   
   <p><strong>An ultra-modern, high-tech AI platform designed to seamlessly navigate campus resources.</strong></p>
 
@@ -42,14 +40,6 @@ Experience the speed and intelligence of CampusGuide in action:
 - **⚡ Blazing Fast Architecture:** Built on Vite React and powered by an optimized Express and SQLite backend for zero-latency queries.
 - **🖼️ Multimodal Support:** Send both text and images to the CampusBrain for contextual assistance.
 - **💾 Local Knowledge Graph:** Robust `better-sqlite3` database pre-loaded with comprehensive campus information extending search via intelligent keyword mapping.
-
----
-
-## 💻 Sleek User Interface
-
-<div align="center">
-  <img src="docs/assets/ui_mockup.png" alt="CampusGuide UI Mockup" width="800" style="border-radius: 10px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);" />
-</div>
 
 ---
 
