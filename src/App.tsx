@@ -103,32 +103,32 @@ export default function App() {
   ];
 
   return (
-    <div className="flex h-screen bg-mesh text-[#1A1A1A] dark:text-gray-100 font-sans selection:bg-brand-teal/20 selection:text-brand-blue dark:selection:text-white transition-colors duration-300">
+    <div className="flex h-screen bg-surface text-text-main font-sans selection:bg-accent/20 selection:text-primary transition-colors duration-300">
       {/* Sidebar */}
-      <aside className="w-64 bg-white/40 dark:bg-[#0b1120]/60 backdrop-blur-xl border-r border-white/40 dark:border-white/10 flex flex-col hidden md:flex shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 transition-colors duration-300">
-        <div className="p-6 border-b border-white/30 dark:border-white/10">
+      <aside className="w-64 glass-panel border-r border-black/5 dark:border-white/5 flex flex-col hidden md:flex shadow-md z-10 transition-colors duration-300">
+        <div className="p-6 border-b border-black/5 dark:border-white/5">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-brand-teal to-blue-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-brand-teal/20">
+            <div className="w-8 h-8 bg-primary rounded-2xl flex items-center justify-center text-surface shadow-lg shadow-primary/20">
               <School size={20} />
             </div>
-            <h1 className="font-semibold text-lg tracking-tight">CampusGuide AI</h1>
+            <h1 className="font-semibold text-lg tracking-tight text-text-main">CampusGuide AI</h1>
           </div>
-          <p className="text-xs text-black/40 dark:text-white/40 font-medium uppercase tracking-wider">Techno NJR Assistant</p>
+          <p className="text-xs text-text-main/70 font-medium uppercase tracking-wider">Techno NJR Assistant</p>
         </div>
 
         <nav className="flex-1 p-4 space-y-6">
           <div>
-            <label className="text-[10px] font-bold text-black/30 dark:text-white/30 uppercase tracking-widest mb-3 block px-2">I am a...</label>
+            <label className="text-[10px] font-bold text-text-main/50 uppercase tracking-widest mb-3 block px-2">I am a...</label>
             <div className="space-y-1">
               {(["fresher", "student", "visitor"] as UserType[]).map((type) => (
                 <button
                   key={type}
                   onClick={() => setUserType(type)}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 text-sm font-medium",
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-300 text-sm font-medium btn-glow",
                     userType === type 
-                      ? "bg-gradient-to-r from-blue-500/10 to-teal-400/10 text-brand-teal dark:text-teal-400 shadow-sm ring-1 ring-brand-teal/20 dark:ring-brand-teal/40" 
-                      : "text-black/60 dark:text-white/60 hover:bg-white/50 dark:hover:bg-white/10"
+                      ? "bg-primary/10 text-primary ring-1 ring-primary/30 shadow-sm" 
+                      : "text-text-main/80 hover:bg-text-main/5"
                   )}
                 >
                   {type === "fresher" && <GraduationCap size={18} />}
@@ -141,13 +141,13 @@ export default function App() {
           </div>
 
           <div>
-            <label className="text-[10px] font-bold text-black/30 dark:text-white/30 uppercase tracking-widest mb-3 block px-2">Quick Access</label>
+            <label className="text-[10px] font-bold text-text-main/50 uppercase tracking-widest mb-3 block px-2">Quick Access</label>
             <div className="space-y-1">
               {suggestions.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => setInput(s.text)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs text-black/50 dark:text-white/50 hover:bg-white/60 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-colors group"
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-2xl text-xs text-text-main/70 hover:bg-text-main/5 hover:text-text-main transition-colors group btn-glow"
                 >
                   <div className="flex items-center gap-2">
                     {s.icon}
@@ -160,10 +160,10 @@ export default function App() {
           </div>
         </nav>
 
-        <div className="p-4 mt-auto border-t border-white/30 dark:border-white/10 space-y-3">
+        <div className="p-4 mt-auto border-t border-black/5 dark:border-white/5 space-y-3">
           <button 
             onClick={() => setIsDarkMode(!isDarkMode)}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/50 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20 transition-colors text-sm font-medium text-black/60 dark:text-white/80 backdrop-blur-sm border border-white/40 dark:border-white/10 shadow-sm"
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-2xl bg-text-main/5 hover:bg-text-main/10 transition-colors text-sm font-medium text-text-main border border-text-main/10 shadow-sm btn-glow"
           >
             <div className="flex items-center gap-3">
               {isDarkMode ? <Moon size={16} /> : <Sun size={16} />}
@@ -171,21 +171,21 @@ export default function App() {
             </div>
             <div className={cn(
               "w-8 h-4 rounded-full relative transition-colors",
-              isDarkMode ? "bg-brand-teal/50" : "bg-black/10"
+              isDarkMode ? "bg-primary btn-glow" : "bg-text-main/20"
             )}>
               <div className={cn(
-                "absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all shadow-sm",
+                "absolute top-0.5 w-3 h-3 rounded-full bg-surface transition-all shadow-sm",
                 isDarkMode ? "left-4.5" : "left-0.5"
               )} />
             </div>
           </button>
-          <div className="bg-white/50 dark:bg-white/10 backdrop-blur-sm border border-white/40 dark:border-white/10 rounded-xl p-3 flex items-center gap-3 shadow-sm">
-            <div className="w-8 h-8 rounded-full bg-white dark:bg-white/20 flex items-center justify-center text-black/40 dark:text-white/80">
+          <div className="glass-panel border border-black/5 dark:border-white/5 rounded-2xl p-3 flex items-center gap-3 shadow-sm">
+            <div className="w-8 h-8 rounded-2xl bg-text-main/5 flex items-center justify-center text-text-main/80 border border-black/5 dark:border-white/5">
               <User size={16} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold truncate">Guest User</p>
-              <p className="text-[10px] text-black/40 dark:text-white/40 truncate capitalize">{userType} Mode</p>
+              <p className="text-xs font-semibold text-text-main truncate">Guest User</p>
+              <p className="text-[10px] text-text-main/60 truncate capitalize">{userType} Mode</p>
             </div>
           </div>
         </div>
@@ -194,24 +194,24 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col relative bg-transparent">
         {/* Header (Mobile) */}
-        <header className="md:hidden p-4 bg-white/60 dark:bg-[#0b1120]/60 backdrop-blur-xl border-b border-white/30 dark:border-white/10 flex items-center justify-between sticky top-0 z-20">
+        <header className="md:hidden p-4 glass-panel border-b border-black/5 dark:border-white/5 flex items-center justify-between sticky top-0 z-20 shadow-sm">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-brand-teal to-blue-500 rounded-lg flex items-center justify-center text-white shadow-md">
+            <div className="w-8 h-8 bg-primary rounded-2xl flex items-center justify-center text-surface shadow-md">
               <School size={18} />
             </div>
-            <span className="font-semibold">CampusGuide</span>
+            <span className="font-semibold text-text-main">CampusGuide</span>
           </div>
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setIsDarkMode(!isDarkMode)}
-              className="text-black/60 dark:text-white/80 hover:text-brand-teal"
+              className="text-text-main/80 hover:text-primary btn-glow rounded-2xl p-1"
             >
               {isDarkMode ? <Moon size={18} /> : <Sun size={18} />}
             </button>
             <select 
               value={userType} 
               onChange={(e) => setUserType(e.target.value as UserType)}
-              className="text-xs bg-black/5 dark:bg-white/10 border-none rounded-lg px-2 py-1 outline-none dark:text-white/90"
+              className="text-xs bg-text-main/5 border border-text-main/10 rounded-2xl px-2 py-1 outline-none text-text-main cursor-pointer glass-panel"
             >
               <option value="fresher">Fresher</option>
               <option value="student">Student</option>
@@ -222,10 +222,10 @@ export default function App() {
 
         {/* Floating Bubble Header (Desktop) */}
         <div className="hidden md:flex justify-center pt-6 absolute top-0 w-full z-10 pointer-events-none">
-          <div className="bg-white/60 dark:bg-black/50 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.04)] rounded-full px-6 py-2 pointer-events-auto">
-             <p className="text-xs font-medium text-black/60 dark:text-white/80 flex items-center gap-2">
-               <Bot size={14} className="text-brand-teal dark:text-brand-mint" />
-               Connected to <span className="font-bold text-brand-blue dark:text-white">Campus Brain</span>
+          <div className="glass-panel border border-black/5 dark:border-white/5 shadow-md rounded-2xl px-6 py-2 pointer-events-auto">
+             <p className="text-xs font-medium text-text-main/80 flex items-center gap-2">
+               <Bot size={14} className="text-accent" />
+               Connected to <span className="font-bold text-text-main">Campus Brain</span>
              </p>
           </div>
         </div>
@@ -245,16 +245,16 @@ export default function App() {
                   )}
                 >
                   <div className={cn(
-                    "w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center shadow-sm",
-                    msg.role === "user" ? "bg-gradient-to-br from-brand-blue to-blue-900 text-white" : "bg-gradient-to-br from-brand-mint to-white dark:from-teal-900 dark:to-brand-blue text-brand-teal dark:text-white border border-white/50 dark:border-white/10"
+                    "w-8 h-8 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-sm",
+                    msg.role === "user" ? "bg-primary text-surface" : "glass-panel text-primary border border-black/5 dark:border-white/5"
                   )}>
                     {msg.role === "user" ? <User size={16} /> : <Bot size={16} />}
                   </div>
                   <div className={cn(
                     "max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed",
                     msg.role === "user" 
-                      ? "bg-gradient-to-br from-brand-blue to-blue-900 text-white rounded-tr-none shadow-md shadow-brand-blue/20" 
-                      : "bg-white/70 dark:bg-black/40 backdrop-blur-md border border-white/50 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-tl-none text-black dark:text-white"
+                      ? "bg-primary text-surface rounded-tr-none shadow-sm" 
+                      : "glass-panel border border-black/5 dark:border-white/5 shadow-sm rounded-tl-none text-text-main"
                   )}>
                     <div className="markdown-body prose prose-sm dark:prose-invert max-w-none">
                       <ReactMarkdown>{msg.text}</ReactMarkdown>
@@ -269,13 +269,13 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 className="flex gap-4"
               >
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-mint to-white dark:from-teal-900 dark:to-brand-blue border border-white/50 dark:border-white/10 text-brand-teal dark:text-white flex items-center justify-center shadow-sm">
+                <div className="w-8 h-8 rounded-2xl glass-panel border border-black/5 dark:border-white/5 text-primary flex items-center justify-center shadow-sm">
                   <Bot size={16} />
                 </div>
-                <div className="bg-white/70 dark:bg-black/40 backdrop-blur-md border border-white/50 dark:border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-1">
-                  <div className="w-1 h-1 bg-black/20 dark:bg-white/50 rounded-full animate-bounce" />
-                  <div className="w-1 h-1 bg-black/20 dark:bg-white/50 rounded-full animate-bounce [animation-delay:0.2s]" />
-                  <div className="w-1 h-1 bg-black/20 dark:bg-white/50 rounded-full animate-bounce [animation-delay:0.4s]" />
+                <div className="glass-panel border border-black/5 dark:border-white/5 shadow-sm rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 bg-text-main/40 rounded-full animate-bounce" />
+                  <div className="w-1.5 h-1.5 bg-text-main/40 rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-1.5 h-1.5 bg-text-main/40 rounded-full animate-bounce [animation-delay:0.4s]" />
                 </div>
               </motion.div>
             )}
@@ -301,8 +301,8 @@ export default function App() {
                   </button>
                 </div>
               )}
-              <div className="absolute inset-0 bg-brand-teal/5 blur-2xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
-              <div className="relative flex items-center gap-2 bg-white/60 dark:bg-[#0b1120]/60 backdrop-blur-xl border border-white/60 dark:border-white/10 rounded-2xl p-2 shadow-[0_8px_32px_rgba(0,0,0,0.04)] focus-within:ring-2 focus-within:ring-brand-teal/20 focus-within:border-brand-teal/30 transition-all">
+              <div className="absolute inset-0 bg-accent/5 blur-2xl rounded-2xl opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative flex items-center gap-2 glass-panel border border-black/10 dark:border-white/10 rounded-2xl p-2 shadow-lg focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
                 <input
                   type="file"
                   accept="image/png, image/jpeg, image/webp"
@@ -312,7 +312,7 @@ export default function App() {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-10 h-10 text-black/40 dark:text-white/40 hover:bg-white/50 dark:hover:bg-white/10 hover:text-brand-teal dark:hover:text-brand-teal rounded-xl flex items-center justify-center transition-all"
+                  className="w-10 h-10 text-text-main/60 hover:bg-text-main/10 hover:text-primary rounded-2xl flex items-center justify-center transition-all btn-glow"
                 >
                   <Paperclip size={18} />
                 </button>
@@ -322,18 +322,18 @@ export default function App() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder={`Ask anything about Techno NJR as a ${userType}...`}
-                  className="flex-1 bg-transparent border-none outline-none px-2 py-2 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 text-black dark:text-white w-full"
+                  className="flex-1 bg-transparent border-none outline-none px-2 py-2 text-sm placeholder:text-text-main/50 text-text-main w-full"
                 />
                 <button
                   onClick={handleSend}
                   disabled={(!input.trim() && !selectedImage) || isLoading}
-                  className="w-10 h-10 bg-gradient-to-br from-brand-teal to-blue-500 text-white rounded-xl flex items-center justify-center hover:shadow-lg hover:shadow-brand-teal/40 disabled:opacity-50 transition-all shadow-md shadow-brand-teal/20 shrink-0"
+                  className="w-10 h-10 bg-primary text-surface rounded-2xl flex items-center justify-center hover:shadow-lg hover:shadow-primary/40 disabled:opacity-50 transition-all shadow-md shrink-0 btn-glow"
                 >
                   <Send size={18} />
                 </button>
               </div>
             </div>
-            <p className="text-[10px] text-center mt-4 text-black/30 font-medium uppercase tracking-widest">
+            <p className="text-[10px] text-center mt-4 text-text-main/50 font-medium uppercase tracking-widest">
               CampusGuide AI can make mistakes. Check official sources for critical info.
             </p>
           </div>

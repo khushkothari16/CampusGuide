@@ -1,35 +1,54 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme {
-  --color-brand-blue: #0A2540;
-  --color-brand-mint: #E8F5E9;
-  --color-brand-teal: #00B4D8;
+  --color-primary: var(--theme-primary);
+  --color-surface: var(--theme-surface);
+  --color-accent: var(--theme-accent);
+  --color-text-main: var(--theme-text);
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
-@layer utilities {
-  .bg-mesh {
-    background-color: #f0fdf4;
-    background-image: 
-      radial-gradient(at 40% 20%, hsla(210,100%,92%,1) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, hsla(189,100%,86%,1) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, hsla(152,80%,90%,1) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, hsla(160,100%,94%,1) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, hsla(212,100%,91%,1) 0px, transparent 50%),
-      radial-gradient(at 80% 100%, hsla(190,100%,95%,1) 0px, transparent 50%),
-      radial-gradient(at 0% 0%, hsla(164,100%,92%,1) 0px, transparent 50%);
+@layer base {
+  :root {
+    --theme-primary: #A47864;
+    --theme-surface: #FDF8F3;
+    --theme-accent: #A8E6CF;
+    --theme-text: #1C1C1C;
+    --theme-surface-glass: rgba(253, 248, 243, 0.75);
   }
 
-  .dark .bg-mesh {
-    background-color: #0b1120;
+  .dark {
+    --theme-primary: #635BFF;
+    --theme-surface: #080808;
+    --theme-accent: #00FFC2;
+    --theme-text: #F5F5F5;
+    --theme-surface-glass: rgba(8, 8, 8, 0.75);
+  }
+}
+
+@layer utilities {
+  .bg-mesh-light {
+    background-color: var(--theme-surface);
     background-image: 
-      radial-gradient(at 40% 20%, hsla(210,100%,12%,1) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, hsla(189,100%,15%,1) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, hsla(152,80%,10%,1) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, hsla(160,100%,14%,1) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, hsla(212,100%,11%,1) 0px, transparent 50%),
-      radial-gradient(at 80% 100%, hsla(190,100%,15%,1) 0px, transparent 50%),
-      radial-gradient(at 0% 0%, hsla(164,100%,12%,1) 0px, transparent 50%);
+      radial-gradient(at 40% 20%, hsla(210,100%,92%,0.4) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsla(189,100%,86%,0.4) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsla(152,80%,90%,0.4) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, hsla(160,100%,94%,0.4) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(212,100%,91%,0.4) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsla(190,100%,95%,0.4) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, hsla(164,100%,92%,0.4) 0px, transparent 50%);
+  }
+
+  .glass-panel {
+    background-color: var(--theme-surface-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .btn-glow {
+    box-shadow: 0 0 2px var(--theme-accent);
   }
 }
 
