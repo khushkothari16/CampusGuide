@@ -12,16 +12,14 @@ import {
   GraduationCap,
   School,
   Eye,
-  MessageSquare,
   Paperclip,
-  X,
-  Moon,
-  Sun
+  X
 } from "lucide-react";
 import { generateCampusResponse, ChatMessage } from "./services/geminiService";
 import ReactMarkdown from "react-markdown";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import Login from "./components/Login";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -37,18 +35,11 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState<UserType>("student");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("Guest User");
+  const [collegeId, setCollegeId] = useState<string | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Apply dark mode to document element
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -84,7 +75,6 @@ export default function App() {
     setSelectedImage(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
     
-    // Optimistic UI update
     const displayMessage = userMessage || "Sent an image";
     setMessages(prev => [...prev, { role: "user", text: displayMessage }]);
     setIsLoading(true);
@@ -102,33 +92,46 @@ export default function App() {
     { icon: <Users size={16} />, text: "How can I contact the admission office?" },
   ];
 
+  if (!isLoggedIn) {
+    return (
+      <Login 
+        onLogin={(name, role, selectedCollegeId) => {
+          setUserName(name);
+          setUserType(role);
+          setCollegeId(selectedCollegeId);
+          setIsLoggedIn(true);
+        }} 
+      />
+    );
+  }
+
   return (
-    <div className="flex h-screen bg-surface text-text-main font-sans selection:bg-accent/20 selection:text-primary transition-colors duration-300">
+    <div className="flex h-screen app-bg text-[#E5E7EB] font-sans selection:bg-[#3B82F6]/30 selection:text-white transition-colors duration-300">
       {/* Sidebar */}
-      <aside className="w-64 glass-panel border-r border-black/5 dark:border-white/5 flex flex-col hidden md:flex shadow-md z-10 transition-colors duration-300">
-        <div className="p-6 border-b border-black/5 dark:border-white/5">
+      <aside className="w-64 sidebar-bg flex flex-col hidden md:flex shadow-2xl z-10">
+        <div className="p-8 border-b border-white/[0.08]">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 bg-primary rounded-2xl flex items-center justify-center text-surface shadow-lg shadow-primary/20">
+            <div className="w-10 h-10 bg-[#3B82F6] rounded-[16px] flex items-center justify-center text-white central-glow">
               <School size={20} />
             </div>
-            <h1 className="font-semibold text-lg tracking-tight text-text-main">CampusGuide AI</h1>
+            <h1 className="font-semibold text-lg tracking-tight text-[#E5E7EB]">CampusGuide AI</h1>
           </div>
-          <p className="text-xs text-text-main/70 font-medium uppercase tracking-wider">Techno NJR Assistant</p>
+          <p className="text-xs text-[#9CA3AF] font-medium uppercase tracking-wider mt-2">Techno NJR Assistant</p>
         </div>
 
-        <nav className="flex-1 p-4 space-y-6">
+        <nav className="flex-1 p-6 space-y-8">
           <div>
-            <label className="text-[10px] font-bold text-text-main/50 uppercase tracking-widest mb-3 block px-2">I am a...</label>
-            <div className="space-y-1">
+            <label className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-4 block px-2">I am a...</label>
+            <div className="space-y-2">
               {(["fresher", "student", "visitor"] as UserType[]).map((type) => (
                 <button
                   key={type}
                   onClick={() => setUserType(type)}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-300 text-sm font-medium btn-glow",
+                    "w-full flex items-center gap-3 px-4 py-3 rounded-[16px] transition-all duration-300 text-sm font-medium border border-transparent",
                     userType === type 
-                      ? "bg-primary/10 text-primary ring-1 ring-primary/30 shadow-sm" 
-                      : "text-text-main/80 hover:bg-text-main/5"
+                      ? "bg-white/[0.05] text-[#60A5FA] border-[#60A5FA]/30 shadow-sm" 
+                      : "text-[#9CA3AF] hover:text-[#E5E7EB] hover:bg-white/[0.02]"
                   )}
                 >
                   {type === "fresher" && <GraduationCap size={18} />}
@@ -141,77 +144,53 @@ export default function App() {
           </div>
 
           <div>
-            <label className="text-[10px] font-bold text-text-main/50 uppercase tracking-widest mb-3 block px-2">Quick Access</label>
-            <div className="space-y-1">
+            <label className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-4 block px-2">Quick Access</label>
+            <div className="space-y-2">
               {suggestions.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => setInput(s.text)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-2xl text-xs text-text-main/70 hover:bg-text-main/5 hover:text-text-main transition-colors group btn-glow"
+                  className="w-full flex items-center justify-between px-4 py-3 border border-transparent rounded-[16px] text-xs text-[#9CA3AF] hover:text-[#60A5FA] btn-glow group transition-all"
                 >
-                  <div className="flex items-center gap-2">
-                    {s.icon}
-                    <span>{s.text}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[#6B7280] group-hover:text-[#60A5FA] transition-colors">{s.icon}</span>
+                    <span className="truncate max-w-[120px] text-left">{s.text}</span>
                   </div>
-                  <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
               ))}
             </div>
           </div>
         </nav>
 
-        <div className="p-4 mt-auto border-t border-black/5 dark:border-white/5 space-y-3">
-          <button 
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-2xl bg-text-main/5 hover:bg-text-main/10 transition-colors text-sm font-medium text-text-main border border-text-main/10 shadow-sm btn-glow"
-          >
-            <div className="flex items-center gap-3">
-              {isDarkMode ? <Moon size={16} /> : <Sun size={16} />}
-              <span>{isDarkMode ? "Dark Mode" : "Light Mode"}</span>
-            </div>
-            <div className={cn(
-              "w-8 h-4 rounded-full relative transition-colors",
-              isDarkMode ? "bg-primary btn-glow" : "bg-text-main/20"
-            )}>
-              <div className={cn(
-                "absolute top-0.5 w-3 h-3 rounded-full bg-surface transition-all shadow-sm",
-                isDarkMode ? "left-4.5" : "left-0.5"
-              )} />
-            </div>
-          </button>
-          <div className="glass-panel border border-black/5 dark:border-white/5 rounded-2xl p-3 flex items-center gap-3 shadow-sm">
-            <div className="w-8 h-8 rounded-2xl bg-text-main/5 flex items-center justify-center text-text-main/80 border border-black/5 dark:border-white/5">
-              <User size={16} />
+        <div className="p-6 mt-auto border-t border-white/[0.08] space-y-4">
+          <div className="glass-panel rounded-[16px] p-4 flex items-center gap-3 shadow-sm border border-[#374151]">
+            <div className="w-10 h-10 rounded-[12px] bg-[#1F2937] flex items-center justify-center text-[#E5E7EB] border border-[#374151]">
+              <User size={18} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-text-main truncate">Guest User</p>
-              <p className="text-[10px] text-text-main/60 truncate capitalize">{userType} Mode</p>
+              <p className="text-sm font-semibold text-[#E5E7EB] truncate">{userName}</p>
+              <p className="text-[11px] text-[#9CA3AF] truncate capitalize">{userType} Mode</p>
             </div>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative bg-transparent">
+      <main className="flex-1 flex flex-col relative bg-transparent overflow-hidden">
         {/* Header (Mobile) */}
-        <header className="md:hidden p-4 glass-panel border-b border-black/5 dark:border-white/5 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-2xl flex items-center justify-center text-surface shadow-md">
-              <School size={18} />
+        <header className="md:hidden p-4 glass-panel border-b border-white/[0.08] flex items-center justify-between sticky top-0 z-20 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#3B82F6] rounded-[12px] flex items-center justify-center text-white central-glow">
+              <School size={16} />
             </div>
-            <span className="font-semibold text-text-main">CampusGuide</span>
+            <span className="font-semibold text-[#E5E7EB]">CampusGuide</span>
           </div>
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="text-text-main/80 hover:text-primary btn-glow rounded-2xl p-1"
-            >
-              {isDarkMode ? <Moon size={18} /> : <Sun size={18} />}
-            </button>
             <select 
               value={userType} 
               onChange={(e) => setUserType(e.target.value as UserType)}
-              className="text-xs bg-text-main/5 border border-text-main/10 rounded-2xl px-2 py-1 outline-none text-text-main cursor-pointer glass-panel"
+              className="text-xs bg-[#1F2937] border border-[#374151] rounded-full px-3 py-1.5 outline-none text-[#E5E7EB] cursor-pointer"
             >
               <option value="fresher">Fresher</option>
               <option value="student">Student</option>
@@ -221,18 +200,18 @@ export default function App() {
         </header>
 
         {/* Floating Bubble Header (Desktop) */}
-        <div className="hidden md:flex justify-center pt-6 absolute top-0 w-full z-10 pointer-events-none">
-          <div className="glass-panel border border-black/5 dark:border-white/5 shadow-md rounded-2xl px-6 py-2 pointer-events-auto">
-             <p className="text-xs font-medium text-text-main/80 flex items-center gap-2">
-               <Bot size={14} className="text-accent" />
-               Connected to <span className="font-bold text-text-main">Campus Brain</span>
+        <div className="hidden md:flex justify-center pt-8 absolute top-0 w-full z-10 pointer-events-none">
+          <div className="glass-panel shadow-md rounded-full px-6 py-2.5 pointer-events-auto border-[#374151]">
+             <p className="text-xs font-medium text-[#9CA3AF] flex items-center gap-2">
+               <span className="w-2 h-2 rounded-full bg-[#60A5FA] central-glow animate-pulse"></span>
+               Connected to <span className="font-bold text-[#E5E7EB]">Campus Brain</span>
              </p>
           </div>
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 md:pt-24 scroll-smooth">
-          <div className="max-w-3xl mx-auto space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 md:pt-28 scroll-smooth">
+          <div className="max-w-3xl mx-auto space-y-8">
             <AnimatePresence initial={false}>
               {messages.map((msg, i) => (
                 <motion.div
@@ -245,18 +224,18 @@ export default function App() {
                   )}
                 >
                   <div className={cn(
-                    "w-8 h-8 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-sm",
-                    msg.role === "user" ? "bg-primary text-surface" : "glass-panel text-primary border border-black/5 dark:border-white/5"
+                    "w-10 h-10 rounded-[16px] flex-shrink-0 flex items-center justify-center shadow-sm z-10",
+                    msg.role === "user" ? "bg-[#3B82F6] text-white central-glow" : "glass-panel text-[#60A5FA] border-[#374151]"
                   )}>
-                    {msg.role === "user" ? <User size={16} /> : <Bot size={16} />}
+                    {msg.role === "user" ? <User size={18} /> : <Bot size={18} />}
                   </div>
                   <div className={cn(
-                    "max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed",
+                    "max-w-[85%] px-6 py-4 rounded-[20px] text-sm leading-relaxed card-shadow backdrop-blur-sm",
                     msg.role === "user" 
-                      ? "bg-primary text-surface rounded-tr-none shadow-sm" 
-                      : "glass-panel border border-black/5 dark:border-white/5 shadow-sm rounded-tl-none text-text-main"
+                      ? "bg-[#3B82F6] text-white rounded-tr-none border border-[#60A5FA]/30" 
+                      : "glass-panel rounded-tl-none border-[#374151]"
                   )}>
-                    <div className="markdown-body prose prose-sm dark:prose-invert max-w-none">
+                    <div className="markdown-body prose prose-sm max-w-none">
                       <ReactMarkdown>{msg.text}</ReactMarkdown>
                     </div>
                   </div>
@@ -269,13 +248,13 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 className="flex gap-4"
               >
-                <div className="w-8 h-8 rounded-2xl glass-panel border border-black/5 dark:border-white/5 text-primary flex items-center justify-center shadow-sm">
-                  <Bot size={16} />
+                <div className="w-10 h-10 rounded-[16px] glass-panel border border-[#374151] text-[#60A5FA] flex items-center justify-center shadow-sm">
+                  <Bot size={18} />
                 </div>
-                <div className="glass-panel border border-black/5 dark:border-white/5 shadow-sm rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 bg-text-main/40 rounded-full animate-bounce" />
-                  <div className="w-1.5 h-1.5 bg-text-main/40 rounded-full animate-bounce [animation-delay:0.2s]" />
-                  <div className="w-1.5 h-1.5 bg-text-main/40 rounded-full animate-bounce [animation-delay:0.4s]" />
+                <div className="glass-panel border-[#374151] shadow-sm rounded-[20px] rounded-tl-none px-6 py-4 flex items-center gap-2 max-w-[100px]">
+                  <div className="w-2 h-2 bg-[#60A5FA] rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-[#60A5FA] rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-2 h-2 bg-[#60A5FA] rounded-full animate-bounce [animation-delay:0.4s]" />
                 </div>
               </motion.div>
             )}
@@ -284,25 +263,25 @@ export default function App() {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 md:p-8 pt-0">
+        <div className="p-4 md:p-8 pt-0 pb-6 md:pb-10">
           <div className="max-w-3xl mx-auto">
             <div className="relative group">
               {selectedImage && (
-                <div className="mb-2 relative inline-block">
-                  <img src={selectedImage} alt="Preview" className="h-16 w-16 object-cover rounded-lg border border-black/10 shadow-sm" />
+                <div className="mb-4 relative inline-block">
+                  <img src={selectedImage} alt="Preview" className="h-20 w-20 object-cover rounded-[16px] border border-[#374151] shadow-lg" />
                   <button 
                     onClick={() => {
                       setSelectedImage(null);
                       if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition"
+                    className="absolute -top-3 -right-3 bg-[#1F2937] text-white rounded-full p-1.5 border border-[#374151] shadow-md hover:text-[#60A5FA] transition"
                   >
-                    <X size={12} />
+                    <X size={14} />
                   </button>
                 </div>
               )}
-              <div className="absolute inset-0 bg-accent/5 blur-2xl rounded-2xl opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
-              <div className="relative flex items-center gap-2 glass-panel border border-black/10 dark:border-white/10 rounded-2xl p-2 shadow-lg focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
+              <div className="absolute inset-0 bg-[#3B82F6]/5 blur-3xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative flex items-center gap-2 input-glass rounded-full p-2 pl-4 focus-within:ring-2 focus-within:ring-[#3B82F6]/50 focus-within:border-[#3B82F6]/50 transition-all">
                 <input
                   type="file"
                   accept="image/png, image/jpeg, image/webp"
@@ -312,9 +291,9 @@ export default function App() {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-10 h-10 text-text-main/60 hover:bg-text-main/10 hover:text-primary rounded-2xl flex items-center justify-center transition-all btn-glow"
+                  className="w-10 h-10 text-[#9CA3AF] hover:text-[#60A5FA] rounded-full flex items-center justify-center transition-all btn-glow border border-transparent"
                 >
-                  <Paperclip size={18} />
+                  <Paperclip size={20} />
                 </button>
                 <input
                   type="text"
@@ -322,18 +301,18 @@ export default function App() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder={`Ask anything about Techno NJR as a ${userType}...`}
-                  className="flex-1 bg-transparent border-none outline-none px-2 py-2 text-sm placeholder:text-text-main/50 text-text-main w-full"
+                  className="flex-1 bg-transparent border-none outline-none px-2 py-3 text-[15px] placeholder:text-[#6B7280] text-[#E5E7EB] w-full"
                 />
                 <button
                   onClick={handleSend}
                   disabled={(!input.trim() && !selectedImage) || isLoading}
-                  className="w-10 h-10 bg-primary text-surface rounded-2xl flex items-center justify-center hover:shadow-lg hover:shadow-primary/40 disabled:opacity-50 transition-all shadow-md shrink-0 btn-glow"
+                  className="w-12 h-12 bg-[#1F2937] text-[#E5E7EB] border border-[#374151] rounded-full flex items-center justify-center hover:bg-[#3B82F6] hover:text-white disabled:opacity-40 disabled:hover:bg-[#1F2937] disabled:hover:text-[#E5E7EB] disabled:hover:border-[#374151] disabled:border-transparent transition-all shadow-md shrink-0 btn-glow"
                 >
-                  <Send size={18} />
+                  <Send size={18} className="ml-1" />
                 </button>
               </div>
             </div>
-            <p className="text-[10px] text-center mt-4 text-text-main/50 font-medium uppercase tracking-widest">
+            <p className="text-xs text-center mt-6 text-[#6B7280] font-medium tracking-wide">
               CampusGuide AI can make mistakes. Check official sources for critical info.
             </p>
           </div>

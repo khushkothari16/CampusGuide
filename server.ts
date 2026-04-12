@@ -98,7 +98,7 @@ async function startServer() {
   app.use(express.json());
 
   // API Routes
-  app.get("/api/knowledge", (req, res) => {
+  app.get("/api/knowledge", async (req, res) => {
     const query = req.query.q as string;
     if (!query) {
       return res.json({
@@ -144,6 +144,26 @@ async function startServer() {
         admission = [...new Set([...admission, ...a])];
         scrapedData = [...new Set([...scrapedData, ...s])];
         if (facilities.length > 5 || admission.length > 5 || scrapedData.length > 10) break;
+      }
+    }
+
+    // SerpAPI Fallback
+    const serpApiKey = process.env.SERPAPI_API_KEY || process.env.VITE_SERPAPI_API_KEY;
+    if (serpApiKey && facilities.length === 0 && admission.length === 0 && scrapedData.length === 0 && searchTerms.length > 0) {
+      try {
+        const serpResponse = await fetch(`https://serpapi.com/search.json?q=${encodeURIComponent("Techno India NJR " + query)}&api_key=${serpApiKey}`);
+        const serpData = await serpResponse.json();
+        
+        if (serpData.organic_results && serpData.organic_results.length > 0) {
+          const topResults = serpData.organic_results.slice(0, 3).map((r: any) => ({
+            content: `Live Web Search Result: ${r.title} - ${r.snippet}`
+          }));
+          scrapedData = [...scrapedData, ...topResults];
+        } else if (serpData.answer_box && serpData.answer_box.snippet) {
+          scrapedData.push({ content: `Live Web Search Answer: ${serpData.answer_box.snippet}` });
+        }
+      } catch (err) {
+        console.error("SerpAPI Error:", err);
       }
     }
 

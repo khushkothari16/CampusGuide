@@ -84,6 +84,3 @@ Experience it on your own machine.
    > 🔗 *The application will instantly boot up at [http://localhost:5000](http://localhost:5000)*
 
 ---
-<p align="center">
-  <i>Built with ❤️ for the students of tomorrow.</i>
-</p>
