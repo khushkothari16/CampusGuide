@@ -98,5 +98,6 @@ Experience it on your own machine.
    npm run dev
    ```
    > 🔗 *The application will instantly boot up at [http://localhost:5000](http://localhost:5000)*
+   > 🔗 *The application login dashboard will instantly boot up at [http://localhost:5000/api/users](http://localhost:5000/api/users)*
 
 ---

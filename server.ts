@@ -314,8 +314,8 @@ async function startServer() {
               </td>
               <td class="px-8 py-5 whitespace-nowrap text-right text-gray-400 text-sm">
                 <div class="flex flex-col items-end gap-1">
-                  <span class="text-gray-300 font-medium">${new Date(user.login_time).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                  <span class="text-xs text-gray-500">${new Date(user.login_time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span class="text-gray-300 font-medium">${new Date(user.login_time + 'Z').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  <span class="text-xs text-gray-500">${new Date(user.login_time + 'Z').toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
               </td>
             </tr>
