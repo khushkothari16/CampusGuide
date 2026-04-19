@@ -19,8 +19,9 @@ export default function Login({ onLogin }: LoginProps) {
   const [role, setRole] = useState<UserType>("student");
   const [collegeId, setCollegeId] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError("Please enter your name");
@@ -31,53 +32,70 @@ export default function Login({ onLogin }: LoginProps) {
       return;
     }
     
+    setIsSubmitting(true);
+    try {
+      await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          name, 
+          role, 
+          collegeId: role === "student" ? collegeId : undefined 
+        })
+      });
+    } catch (err) {
+      console.error("Failed to log login data", err);
+      // We still allow them to proceed even if logging fails
+    }
+    setIsSubmitting(false);
+
     setError("");
     onLogin(name, role, role === "student" ? collegeId : undefined);
   };
 
   return (
-    <div className="flex h-screen app-bg text-[#E5E7EB] font-sans items-center justify-center p-4 overflow-hidden relative">
-      {/* Decorative background glow */}
-      <div className="absolute top-[20%] right-[20%] w-96 h-96 bg-[#3B82F6]/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[20%] left-[20%] w-96 h-96 bg-[#60A5FA]/10 rounded-full blur-[100px] pointer-events-none" />
+    <div className="flex h-screen app-bg text-[#35614C] font-sans items-center justify-center p-4 overflow-hidden relative">
+      {/* Liquid Refraction Orbs */}
+      <div className="absolute top-[5%] right-[15%] w-[400px] h-[400px] bg-[#34d399] rounded-full blur-[120px] pointer-events-none opacity-[0.15]" />
+      <div className="absolute bottom-[10%] left-[15%] w-[500px] h-[500px] bg-[#38bdf8] rounded-full blur-[140px] pointer-events-none opacity-[0.15]" />
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md glass-panel card-shadow rounded-[24px] p-8 relative z-10 border border-white/[0.08]"
+        className="w-full max-w-md glass-panel rounded-[24px] p-8 relative z-10"
       >
         <div className="flex items-center justify-center mb-8 relative z-10">
-          <div className="w-16 h-16 bg-[#3B82F6] rounded-[24px] flex items-center justify-center text-white central-glow">
+          <div className="w-16 h-16 bg-[#F5FFF1] rounded-[20px] border border-[#FFFFFF66] flex items-center justify-center text-[#3CB371]">
             <School size={32} />
           </div>
         </div>
 
         <div className="text-center mb-8 relative z-10">
-          <h1 className="text-2xl font-bold text-[#E5E7EB] mb-2 tracking-tight">Welcome to CampusGuide</h1>
-          <p className="text-[#9CA3AF] text-sm">Your intelligent AI assistant for Techno NJR</p>
+          <h1 className="text-2xl font-bold text-[#1F332B] mb-2 tracking-tight">Welcome to CampusGuide</h1>
+          <p className="text-[#35614C] text-sm">Your intelligent AI assistant for Techno NJR</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
           <div>
-            <label className="block text-xs font-bold text-[#9CA3AF] uppercase tracking-widest mb-2 px-1">
+            <label className="block text-xs font-bold text-[#ADCAB8] uppercase tracking-widest mb-2 px-1">
               Full Name
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <User size={16} className="text-[#6B7280]" />
+                <User size={16} className="text-[#ADCAB8]" />
               </div>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your name"
-                className="w-full input-glass rounded-xl pl-11 pr-4 py-3 text-sm text-[#E5E7EB] placeholder:text-[#6B7280] outline-none focus:ring-2 focus:ring-[#3B82F6]/50 transition-all border border-transparent focus:border-[#3B82F6]/30"
+                className="w-full input-glass rounded-2xl pl-11 pr-4 py-3 text-sm text-[#1F332B] placeholder:text-[#ADCAB8] outline-none focus:ring-2 focus:ring-[#22C55E] transition-all"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#9CA3AF] uppercase tracking-widest mb-2 px-1">
+            <label className="block text-xs font-bold text-[#ADCAB8] uppercase tracking-widest mb-2 px-1">
               I am a...
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -89,8 +107,8 @@ export default function Login({ onLogin }: LoginProps) {
                   className={cn(
                     "flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 border btn-glow",
                     role === type 
-                      ? "bg-[#3B82F6]/10 text-[#60A5FA] border-[#60A5FA]/30 shadow-md" 
-                      : "text-[#9CA3AF] hover:text-[#E5E7EB] bg-white/[0.02] border-transparent hover:bg-white/[0.05]"
+                      ? "bg-[#DFF5E14F] text-[#3CB371] rounded-[20px] glass-panel border border-[#FFFFFF66]" 
+                      : "text-[#89A698] hover:text-[#1F332B] hover:bg-[rgba(255,255,255,0.4)] rounded-[20px] border border-transparent"
                   )}
                 >
                   {type === "fresher" && <GraduationCap size={20} className="mb-2" />}
@@ -108,7 +126,7 @@ export default function Login({ onLogin }: LoginProps) {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
             >
-              <label className="block text-xs font-bold text-[#9CA3AF] uppercase tracking-widest mt-2 mb-2 px-1">
+              <label className="block text-xs font-bold text-[#ADCAB8] uppercase tracking-widest mt-2 mb-2 px-1">
                 College ID
               </label>
               <input
@@ -116,20 +134,21 @@ export default function Login({ onLogin }: LoginProps) {
                 value={collegeId}
                 onChange={(e) => setCollegeId(e.target.value)}
                 placeholder="e.g. TEC2024CS001"
-                className="w-full input-glass rounded-xl px-4 py-3 text-sm text-[#E5E7EB] placeholder:text-[#6B7280] outline-none focus:ring-2 focus:ring-[#3B82F6]/50 transition-all border border-transparent focus:border-[#3B82F6]/30"
+                className="w-full input-glass rounded-2xl px-4 py-3 text-sm text-[#1F332B] placeholder:text-[#ADCAB8] outline-none focus:ring-2 focus:ring-[#22C55E] transition-all"
               />
             </motion.div>
           )}
 
           {error && (
-            <p className="text-red-400 text-xs font-medium text-center">{error}</p>
+            <p className="text-red-500 text-xs font-medium text-center">{error}</p>
           )}
 
           <button
             type="submit"
-            className="w-full bg-[#1F2937] hover:bg-[#3B82F6] text-white py-3.5 rounded-xl font-semibold transition-all btn-glow border border-[#374151] hover:border-[#60A5FA]/50 group flex items-center justify-center gap-2 mt-4"
+            disabled={isSubmitting}
+            className="w-full bg-[#22C55E] hover:bg-[#16A34A] text-white py-3.5 rounded-2xl font-semibold transition-all shadow-[0_4px_20px_rgba(34,197,94,0.3)] flex items-center justify-center gap-2 mt-4 disabled:opacity-50 border border-transparent"
           >
-            <span>Proceed to Guide</span>
+            <span>{isSubmitting ? "Proceeding..." : "Proceed to Guide"}</span>
             <Sparkles size={16} className="opacity-70 group-hover:opacity-100 group-hover:animate-pulse" />
           </button>
         </form>

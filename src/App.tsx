@@ -106,32 +106,37 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen app-bg text-[#E5E7EB] font-sans selection:bg-[#3B82F6]/30 selection:text-white transition-colors duration-300">
+    <div className="flex h-screen app-bg text-[#35614C] font-sans selection:bg-[#DFF5E1] selection:text-[#1F332B] transition-colors duration-300 relative">
+      {/* Liquid Refraction Orbs */}
+      <div className="absolute top-[15%] right-[10%] w-[500px] h-[500px] bg-[#34d399] rounded-full blur-[140px] pointer-events-none opacity-[0.15]" />
+      <div className="absolute bottom-[10%] left-[20%] w-[600px] h-[600px] bg-[#38bdf8] rounded-full blur-[150px] pointer-events-none opacity-[0.12]" />
+      <div className="absolute top-[35%] left-[40%] w-[400px] h-[400px] bg-[#818cf8] rounded-full blur-[120px] pointer-events-none opacity-[0.15]" />
+
       {/* Sidebar */}
-      <aside className="w-64 sidebar-bg flex flex-col hidden md:flex shadow-2xl z-10">
-        <div className="p-8 border-b border-white/[0.08]">
+      <aside className="w-64 sidebar-bg flex flex-col hidden md:flex z-10 glass-panel border border-[#FFFFFF66] border-y-0 border-l-0">
+        <div className="p-8 border-b border-[#FFFFFF66]">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-[#3B82F6] rounded-[16px] flex items-center justify-center text-white central-glow">
+            <div className="w-10 h-10 bg-[#F5FFF1] border border-[#FFFFFF66] rounded-[20px] flex items-center justify-center text-[#3CB371]">
               <School size={20} />
             </div>
-            <h1 className="font-semibold text-lg tracking-tight text-[#E5E7EB]">CampusGuide AI</h1>
+            <h1 className="font-semibold text-lg tracking-tight text-[#1F332B]">CampusGuide</h1>
           </div>
-          <p className="text-xs text-[#9CA3AF] font-medium uppercase tracking-wider mt-2">Techno NJR Assistant</p>
+          <p className="text-xs text-[#ADCAB8] font-medium uppercase tracking-wider mt-2">Techno NJR</p>
         </div>
 
-        <nav className="flex-1 p-6 space-y-8">
+        <nav className="flex-1 p-6 space-y-8 relative z-10">
           <div>
-            <label className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-4 block px-2">I am a...</label>
+            <label className="text-xs font-bold text-[#ADCAB8] uppercase tracking-widest mb-4 block px-2">I am a...</label>
             <div className="space-y-2">
               {(["fresher", "student", "visitor"] as UserType[]).map((type) => (
                 <button
                   key={type}
                   onClick={() => setUserType(type)}
                   className={cn(
-                    "w-full flex items-center gap-3 px-4 py-3 rounded-[16px] transition-all duration-300 text-sm font-medium border border-transparent",
+                    "w-full flex items-center gap-3 px-4 py-3 rounded-[20px] transition-all duration-300 text-sm font-medium border",
                     userType === type 
-                      ? "bg-white/[0.05] text-[#60A5FA] border-[#60A5FA]/30 shadow-sm" 
-                      : "text-[#9CA3AF] hover:text-[#E5E7EB] hover:bg-white/[0.02]"
+                      ? "bg-[#DFF5E14F] text-[#3CB371] border-[#FFFFFF66] shadow-[0_4px_10px_rgba(0,0,0,0.05)]" 
+                      : "text-[#89A698] hover:text-[#1F332B] hover:bg-[rgba(255,255,255,0.4)] border-transparent"
                   )}
                 >
                   {type === "fresher" && <GraduationCap size={18} />}
@@ -144,33 +149,33 @@ export default function App() {
           </div>
 
           <div>
-            <label className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-4 block px-2">Quick Access</label>
+            <label className="text-xs font-bold text-[#ADCAB8] uppercase tracking-widest mb-4 block px-2">Quick Access</label>
             <div className="space-y-2">
               {suggestions.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => setInput(s.text)}
-                  className="w-full flex items-center justify-between px-4 py-3 border border-transparent rounded-[16px] text-xs text-[#9CA3AF] hover:text-[#60A5FA] btn-glow group transition-all"
+                  className="w-full flex items-center justify-between px-4 py-3 border border-transparent rounded-[20px] text-xs text-[#89A698] hover:text-[#1F332B] hover:bg-[rgba(255,255,255,0.4)] btn-glow group transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-[#6B7280] group-hover:text-[#60A5FA] transition-colors">{s.icon}</span>
+                    <span className="text-[#3CB371] transition-colors">{s.icon}</span>
                     <span className="truncate max-w-[120px] text-left">{s.text}</span>
                   </div>
-                  <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-[#22C55E]" />
                 </button>
               ))}
             </div>
           </div>
         </nav>
 
-        <div className="p-6 mt-auto border-t border-white/[0.08] space-y-4">
-          <div className="glass-panel rounded-[16px] p-4 flex items-center gap-3 shadow-sm border border-[#374151]">
-            <div className="w-10 h-10 rounded-[12px] bg-[#1F2937] flex items-center justify-center text-[#E5E7EB] border border-[#374151]">
+        <div className="p-6 mt-auto border-t border-[#FFFFFF66] space-y-4">
+          <div className="glass-panel rounded-[24px] p-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-[20px] bg-white/60 border border-[#FFFFFF66] flex items-center justify-center text-[#3CB371]">
               <User size={18} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#E5E7EB] truncate">{userName}</p>
-              <p className="text-[11px] text-[#9CA3AF] truncate capitalize">{userType} Mode</p>
+              <p className="text-sm font-semibold text-[#1F332B] truncate">{userName}</p>
+              <p className="text-[11px] text-[#ADCAB8] truncate capitalize">{userType} Mode</p>
             </div>
           </div>
         </div>
@@ -179,32 +184,32 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col relative bg-transparent overflow-hidden">
         {/* Header (Mobile) */}
-        <header className="md:hidden p-4 glass-panel border-b border-white/[0.08] flex items-center justify-between sticky top-0 z-20 shadow-sm">
+        <header className="md:hidden p-4 glass-panel border-b border-[#FFFFFF66] border-t-0 border-x-0 flex items-center justify-between sticky top-0 z-20 rounded-none">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#3B82F6] rounded-[12px] flex items-center justify-center text-white central-glow">
+            <div className="w-8 h-8 bg-white/60 rounded-[16px] flex items-center justify-center text-[#3CB371] glass-panel border border-[#FFFFFF66]">
               <School size={16} />
             </div>
-            <span className="font-semibold text-[#E5E7EB]">CampusGuide</span>
+            <span className="font-semibold text-[#1F332B]">CampusGuide</span>
           </div>
           <div className="flex items-center gap-3">
             <select 
               value={userType} 
               onChange={(e) => setUserType(e.target.value as UserType)}
-              className="text-xs bg-[#1F2937] border border-[#374151] rounded-full px-3 py-1.5 outline-none text-[#E5E7EB] cursor-pointer"
+              className="text-xs glass-panel rounded-[20px] px-3 py-1.5 outline-none text-[#1F332B] cursor-pointer"
             >
-              <option value="fresher">Fresher</option>
-              <option value="student">Student</option>
-              <option value="visitor">Visitor</option>
+              <option value="fresher" className="bg-white">Fresher</option>
+              <option value="student" className="bg-white">Student</option>
+              <option value="visitor" className="bg-white">Visitor</option>
             </select>
           </div>
         </header>
 
         {/* Floating Bubble Header (Desktop) */}
         <div className="hidden md:flex justify-center pt-8 absolute top-0 w-full z-10 pointer-events-none">
-          <div className="glass-panel shadow-md rounded-full px-6 py-2.5 pointer-events-auto border-[#374151]">
-             <p className="text-xs font-medium text-[#9CA3AF] flex items-center gap-2">
-               <span className="w-2 h-2 rounded-full bg-[#60A5FA] central-glow animate-pulse"></span>
-               Connected to <span className="font-bold text-[#E5E7EB]">Campus Brain</span>
+          <div className="glass-panel rounded-[20px] px-6 py-2.5 pointer-events-auto border border-[#FFFFFF66]">
+             <p className="text-xs font-medium text-[#ADCAB8] flex items-center gap-2">
+               <span className="w-2 h-2 rounded-full bg-[#22C55E] shadow-[0_0_10px_rgba(34,197,94,0.3)] animate-pulse"></span>
+               Connected to <span className="font-bold text-[#1F332B]">Campus Brain</span>
              </p>
           </div>
         </div>
@@ -224,16 +229,16 @@ export default function App() {
                   )}
                 >
                   <div className={cn(
-                    "w-10 h-10 rounded-[16px] flex-shrink-0 flex items-center justify-center shadow-sm z-10",
-                    msg.role === "user" ? "bg-[#3B82F6] text-white central-glow" : "glass-panel text-[#60A5FA] border-[#374151]"
+                    "w-10 h-10 rounded-[20px] flex-shrink-0 flex items-center justify-center z-10 glass-panel border border-[#FFFFFF66]",
+                    msg.role === "user" ? "text-white bg-[#22C55E]" : "text-[#3CB371] bg-white/60"
                   )}>
                     {msg.role === "user" ? <User size={18} /> : <Bot size={18} />}
                   </div>
                   <div className={cn(
-                    "max-w-[85%] px-6 py-4 rounded-[20px] text-sm leading-relaxed card-shadow backdrop-blur-sm",
+                    "max-w-[85%] px-6 py-4 text-sm leading-relaxed",
                     msg.role === "user" 
-                      ? "bg-[#3B82F6] text-white rounded-tr-none border border-[#60A5FA]/30" 
-                      : "glass-panel rounded-tl-none border-[#374151]"
+                      ? "bg-[#DFF5E14F] text-[#1F332B] rounded-[24px] rounded-tr-[8px] glass-panel shadow-sm border border-[#FFFFFF66]" 
+                      : "glass-panel rounded-[24px] rounded-tl-[8px]"
                   )}>
                     <div className="markdown-body prose prose-sm max-w-none">
                       <ReactMarkdown>{msg.text}</ReactMarkdown>
@@ -248,13 +253,13 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 className="flex gap-4"
               >
-                <div className="w-10 h-10 rounded-[16px] glass-panel border border-[#374151] text-[#60A5FA] flex items-center justify-center shadow-sm">
+                <div className="w-10 h-10 rounded-[20px] glass-panel text-[#3CB371] border border-[#FFFFFF66] flex items-center justify-center bg-white/60">
                   <Bot size={18} />
                 </div>
-                <div className="glass-panel border-[#374151] shadow-sm rounded-[20px] rounded-tl-none px-6 py-4 flex items-center gap-2 max-w-[100px]">
-                  <div className="w-2 h-2 bg-[#60A5FA] rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-[#60A5FA] rounded-full animate-bounce [animation-delay:0.2s]" />
-                  <div className="w-2 h-2 bg-[#60A5FA] rounded-full animate-bounce [animation-delay:0.4s]" />
+                <div className="glass-panel rounded-[24px] rounded-tl-[8px] px-6 py-4 flex items-center gap-2 max-w-[100px]">
+                  <div className="w-2 h-2 bg-[#22C55E] rounded-[20px] animate-bounce" />
+                  <div className="w-2 h-2 bg-[#22C55E] rounded-[20px] animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-2 h-2 bg-[#22C55E] rounded-[20px] animate-bounce [animation-delay:0.4s]" />
                 </div>
               </motion.div>
             )}
@@ -263,25 +268,24 @@ export default function App() {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 md:p-8 pt-0 pb-6 md:pb-10">
+        <div className="p-4 md:p-8 pt-0 pb-6 md:pb-10 relative z-10">
           <div className="max-w-3xl mx-auto">
             <div className="relative group">
               {selectedImage && (
                 <div className="mb-4 relative inline-block">
-                  <img src={selectedImage} alt="Preview" className="h-20 w-20 object-cover rounded-[16px] border border-[#374151] shadow-lg" />
+                  <img src={selectedImage} alt="Preview" className="h-20 w-20 object-cover rounded-[20px] glass-panel shadow-lg" />
                   <button 
                     onClick={() => {
                       setSelectedImage(null);
                       if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
-                    className="absolute -top-3 -right-3 bg-[#1F2937] text-white rounded-full p-1.5 border border-[#374151] shadow-md hover:text-[#60A5FA] transition"
+                    className="absolute -top-3 -right-3 bg-white text-[#ADCAB8] rounded-[20px] p-1.5 glass-panel border border-[#FFFFFF66] hover:text-red-400 transition"
                   >
                     <X size={14} />
                   </button>
                 </div>
               )}
-              <div className="absolute inset-0 bg-[#3B82F6]/5 blur-3xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
-              <div className="relative flex items-center gap-2 input-glass rounded-full p-2 pl-4 focus-within:ring-2 focus-within:ring-[#3B82F6]/50 focus-within:border-[#3B82F6]/50 transition-all">
+              <div className="relative flex items-center gap-2 input-glass rounded-[24px] p-2 pl-4 focus-within:ring-2 focus-within:ring-[#22C55E] transition-all">
                 <input
                   type="file"
                   accept="image/png, image/jpeg, image/webp"
@@ -291,7 +295,7 @@ export default function App() {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-10 h-10 text-[#9CA3AF] hover:text-[#60A5FA] rounded-full flex items-center justify-center transition-all btn-glow border border-transparent"
+                  className="w-10 h-10 text-[#ADCAB8] hover:text-[#22C55E] rounded-[20px] flex items-center justify-center transition-all btn-glow border border-transparent"
                 >
                   <Paperclip size={20} />
                 </button>
@@ -300,19 +304,19 @@ export default function App() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  placeholder={`Ask anything about Techno NJR as a ${userType}...`}
-                  className="flex-1 bg-transparent border-none outline-none px-2 py-3 text-[15px] placeholder:text-[#6B7280] text-[#E5E7EB] w-full"
+                  placeholder={`Search or ask anything...`}
+                  className="flex-1 bg-transparent border-none outline-none px-2 py-3 text-[15px] placeholder:text-[#ADCAB8] text-[#1F332B] w-full"
                 />
                 <button
                   onClick={handleSend}
                   disabled={(!input.trim() && !selectedImage) || isLoading}
-                  className="w-12 h-12 bg-[#1F2937] text-[#E5E7EB] border border-[#374151] rounded-full flex items-center justify-center hover:bg-[#3B82F6] hover:text-white disabled:opacity-40 disabled:hover:bg-[#1F2937] disabled:hover:text-[#E5E7EB] disabled:hover:border-[#374151] disabled:border-transparent transition-all shadow-md shrink-0 btn-glow"
+                  className="w-12 h-12 bg-[#22C55E] text-white rounded-[20px] flex items-center justify-center hover:bg-[#16A34A] border border-transparent disabled:opacity-40 disabled:hover:bg-[#22C55E] transition-all shadow-[0_4px_15px_rgba(34,197,94,0.3)] shrink-0 btn-glow"
                 >
                   <Send size={18} className="ml-1" />
                 </button>
               </div>
             </div>
-            <p className="text-xs text-center mt-6 text-[#6B7280] font-medium tracking-wide">
+            <p className="text-xs text-center mt-6 text-[#89A698] font-medium tracking-wide">
               CampusGuide AI can make mistakes. Check official sources for critical info.
             </p>
           </div>

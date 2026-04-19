@@ -3,16 +3,20 @@
   
   <p><strong>An ultra-modern, high-tech AI platform designed to seamlessly navigate campus resources.</strong></p>
 
+  <img src="docs/assets/hero_banner.png" alt="CampusGuide Hero Banner" width="800" style="border-radius: 10px; margin-top: 15px; margin-bottom: 25px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);" />
+
   <p>
     <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
     <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" />
     <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
     <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" />
     <img src="https://img.shields.io/badge/AI-Groq_&_Gemini-FF6B6B?style=for-the-badge" alt="Groq & Gemini" />
+    <img src="https://img.shields.io/badge/SerpApi-Web_Search-4285F4?style=for-the-badge" alt="SerpApi" />
   </p>
 </div>
 
 ---
+
 
 ## 🌟 Overview
 
@@ -32,14 +36,24 @@ Experience the speed and intelligence of CampusGuide in action:
 
 ---
 
+## ✨ What's New? (Recent Updates)
+
+- **🍃 Mint Mist Nature UI:** Transformed the application's visual identity to a bright, airy "Mint Mist" light theme with elegant green accents, remapped text to deep mint-charcoal colors, and glassmorphism high-opacity panels.
+- **🔐 Secure Identity & Role-based Login:** Implemented a gatekeeper login screen capturing user details (Visitor, Fresher, Student) and validating College IDs.
+- **🗃️ Bulletproof Database Init:** Resolved internal SQLite syntax errors for flawless initialization.
+
+---
+
 ## ✨ Cutting-Edge Features
 
 - **🧠 Intelligent AI Avatar:** Context-aware conversations powered by the latest Groq/Llama LLM capabilities.
 - **🗺️ Interactive Data Retrieval:** Instantly lookup Facilities, Clubs, Upcoming Events, and Admission rules.
-- **🎨 Premium Light & Dark Mode UI:** Award-winning UX/UI featuring seamless theme switching. Glowing neon accents, sophisticated glassmorphism, and buttery smooth Framer Motion animations.
+- **🎨 Premium Nature-Inspired UI:** Award-winning UX/UI featuring the new Mint Mist theme. Soft glowing accents, sophisticated white glassmorphism, and buttery smooth Framer Motion animations.
 - **⚡ Blazing Fast Architecture:** Built on Vite React and powered by an optimized Express and SQLite backend for zero-latency queries.
-- **🖼️ Multimodal Support:** Send both text and images to the CampusBrain for contextual assistance.
+- **🖼️ Multimodal Support:** Send both text and images to the CampusBrain for contextual assistance (Powered by Llama-3.2-90b-vision-preview).
 - **💾 Local Knowledge Graph:** Robust `better-sqlite3` database pre-loaded with comprehensive campus information extending search via intelligent keyword mapping.
+- **🌐 Live Web Search Fallback:** Automatically queries live data using `SerpAPI` and integrates answers directly into the chat when the local database doesn't have the answer.
+- **🕸️ Content Scraping Tools:** Built-in capability using `Cheerio` and `Axios` to fetch external content.
 
 ---
 
@@ -50,7 +64,8 @@ Experience the speed and intelligence of CampusGuide in action:
 | **Frontend** | React 19, Vite, Tailwind CSS v4, Framer Motion, Lucide React Icons |
 | **Backend** | Node.js, Express.js |
 | **Database** | SQLite (via `better-sqlite3`) |
-| **AI Integration** | Groq API (Llama models), Google Gen AI SDK |
+| **Web Utilities**| Axios, Cheerio (`scrape_website` utilities) |
+| **AI & APIs** | Groq API (Llama 3.2/3.3), Google Gen AI SDK, SerpApi (Live Web Search) |
 
 ---
 
@@ -74,6 +89,7 @@ Experience it on your own machine.
    ```env
    GROQ_API_KEY=your_groq_api_key_here
    GEMINI_API_KEY=your_gemini_api_key_here
+   SERPAPI_API_KEY=your_serpapi_api_key_here
    ```
 
 3. **Launch the Engine**
